@@ -111,11 +111,34 @@ export class DependencyTree {
 			}
 
 			iterations++;
-			if (iterations > sorted.length * 4) {
-				throw new Error('Circular dependency?');
+			if (iterations > sorted.length * 10) {
+				throw new Error('Dependency solving took too many iterations. Circular dependency?');
 			}
 		} while (hadToSwap);
 
 		return sorted;
+	}
+
+	lint() {
+		// Look for cycles
+		const dependencies = this.dependencies;
+		function visitor(visited, node) {
+			if (visited.includes(node)) {
+				throw new Error('Circular dependency');
+			}
+
+			const visited_ = [...visited, node];
+
+			const deps = dependencies[node];
+			if (deps) {
+				for (const dep of Object.keys(deps)) {
+					visitor(visited_, dep);
+				}
+			}
+		}
+
+		for (const node of Object.keys(this.dependencies)) {
+			visitor([], node);
+		}
 	}
 }
