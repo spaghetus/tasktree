@@ -35,32 +35,87 @@ export const config = (() => {
 	return Object.assign({}, defaultConfig, config);
 })();
 
-class DependencyTree {
+export class DependencyTree {
 	// Yes this is kinda spaghet but afaik this is the only way to have a set in js
 	nodes = {};
 	dependencies = {};
 
-	incompleteNode(self, name) {
-		self.nodes[name] = false;
+	constructor() {
+		this.nodes = {};
+		this.dependencies = {};
 	}
 
-	completeNode(self, name) {
-		self.nodes[name] = true;
+	incompleteNode(name) {
+		this.nodes[name] = false;
+
+		if (!this.dependencies[name]) {
+			this.dependencies[name] = {};
+		}
 	}
 
-	addDependency(self, name, on) {
-		if (!self.nodes[name]) {
-			self.incompleteNode(self, name);
+	completeNode(name) {
+		this.nodes[name] = true;
+
+		if (!this.dependencies[name]) {
+			this.dependencies[name] = {};
+		}
+	}
+
+	addDependency(name, on) {
+		if (!this.nodes[name]) {
+			this.incompleteNode(name);
 		}
 
-		if (!self.dependencies[name]) {
-			self.dependencies[name] = {};
+		if (!this.dependencies[name]) {
+			this.dependencies[name] = {};
 		}
 
-		if (!self.nodes[on]) {
-			self.incompleteNode(self, on);
+		if (!this.nodes[on]) {
+			this.incompleteNode(on);
 		}
 
-		self.dependencies[name][on] = true;
+		this.dependencies[name][on] = true;
+	}
+
+	dependencySort() {
+		const sorted = [];
+		// Add all nodes which are not satisfied
+		for (const key in this.nodes) {
+			if (this.nodes[key] === false) {
+				sorted.push(key);
+			}
+		}
+
+		let hadToSwap = false;
+		let iterations = 0;
+		// Very naive solver
+		do {
+			hadToSwap = false;
+			for (let i = 0; i < sorted.length; i++) {
+				// Find the latest dependency of this node
+				let latestDep = false;
+				const deps = this.dependencies[sorted[i]];
+				for (let o = i; o < sorted.length; o++) {
+					if (deps[sorted[o]]) {
+						latestDep = o;
+					}
+				}
+
+				// Swap with the latest dependency
+				if (latestDep !== false) {
+					hadToSwap = true;
+					const temporary = sorted[i];
+					sorted[i] = sorted[latestDep];
+					sorted[latestDep] = temporary;
+				}
+			}
+
+			iterations++;
+			if (iterations > sorted.length * 4) {
+				throw new Error('Circular dependency?');
+			}
+		} while (hadToSwap);
+
+		return sorted;
 	}
 }
