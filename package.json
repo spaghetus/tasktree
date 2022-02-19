@@ -1,0 +1,23 @@
+{
+  "name": "tasktree",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "xo; babel -d dist src",
+    "devel": "watch --wait 5 'npm run build'",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "AGPL-3.0-or-later",
+  "devDependencies": {
+    "@babel/cli": "^7.17.3",
+    "@babel/core": "^7.17.5",
+    "@babel/preset-env": "^7.16.11",
+    "watch": "^1.0.2",
+    "xo": "^0.48.0"
+  },
+  "dependencies": {
+    "yaml": "^1.10.2"
+  }
+}
