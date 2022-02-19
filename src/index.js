@@ -34,3 +34,33 @@ export const config = (() => {
 
 	return Object.assign({}, defaultConfig, config);
 })();
+
+class DependencyTree {
+	// Yes this is kinda spaghet but afaik this is the only way to have a set in js
+	nodes = {};
+	dependencies = {};
+
+	incompleteNode(self, name) {
+		self.nodes[name] = false;
+	}
+
+	completeNode(self, name) {
+		self.nodes[name] = true;
+	}
+
+	addDependency(self, name, on) {
+		if (!self.nodes[name]) {
+			self.incompleteNode(self, name);
+		}
+
+		if (!self.dependencies[name]) {
+			self.dependencies[name] = {};
+		}
+
+		if (!self.nodes[on]) {
+			self.incompleteNode(self, on);
+		}
+
+		self.dependencies[name][on] = true;
+	}
+}
