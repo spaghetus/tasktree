@@ -45,6 +45,18 @@ export class DependencyTree {
 		this.dependencies = {};
 	}
 
+	ser() {
+		return YAML.stringify(this);
+	}
+
+	deser(text) {
+		return Object.assign(
+			{},
+			new DependencyTree(),
+			YAML.parse(text),
+		);
+	}
+
 	incompleteNode(name) {
 		this.nodes[name] = false;
 
@@ -120,7 +132,10 @@ export class DependencyTree {
 	}
 
 	lint() {
-		// Look for cycles
+		this.lintCycles();
+	}
+
+	lintCycles() {
 		const dependencies = this.dependencies;
 		function visitor(visited, node) {
 			if (visited.includes(node)) {
@@ -140,5 +155,21 @@ export class DependencyTree {
 		for (const node of Object.keys(this.dependencies)) {
 			visitor([], node);
 		}
+	}
+
+	lintImpossible() {
+		// Stub
+	}
+
+	lintLarge() {
+		// Stub
+	}
+
+	lintSymbolicChain() {
+		// Stub
+	}
+
+	lintDuplicates() {
+		// Stub
 	}
 }
