@@ -45,18 +45,6 @@ export class DependencyTree {
 		this.dependencies = {};
 	}
 
-	ser() {
-		return YAML.stringify(this);
-	}
-
-	deser(text) {
-		return Object.assign(
-			{},
-			new DependencyTree(),
-			YAML.parse(text),
-		);
-	}
-
 	incompleteNode(name) {
 		this.nodes[name] = false;
 
@@ -171,5 +159,65 @@ export class DependencyTree {
 
 	lintDuplicates() {
 		// Stub
+	}
+}
+
+export class TaskSet {
+	tasks = {};
+	tree = new DependencyTree();
+
+	constructor() {
+		this.tasks = {};
+		this.tree = new DependencyTree();
+	}
+
+	ser() {
+		return YAML.stringify(this);
+	}
+
+	deser(text) {
+		return this.fromObj(YAML.parse(text));
+	}
+
+	fromObj(object) {
+		for (const key of Object.keys(object.tasks)) {
+			const task = object.tasks[key];
+			this.tasks[key] = Task.fromObj(task);
+		}
+	}
+}
+
+class Task {
+	description = '';
+	estimatedTime = false;
+	depends = [];
+	symbolic = false;
+	complete = false;
+	due = false;
+
+	constructor() {
+		this.description = '';
+		this.estimatedTime = false;
+		this.depends = [];
+		this.symbolic = false;
+		this.complete = false;
+		this.due = false;
+	}
+
+	ser() {
+		return YAML.stringify(this);
+	}
+
+	deser(text) {
+		return this.fromObj(YAML.parse(text));
+	}
+
+	fromObj(object) {
+		this.description = object.description;
+		this.estimatedTime = object.estimatedTime ? new Date(object.estimatedTime) : false;
+		this.depends = object.depends;
+		this.symbolic = object.symbolic;
+		this.complete = object.complete;
+		this.due = object.due ? new Date(object.due) : false;
 	}
 }
