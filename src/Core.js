@@ -1,6 +1,7 @@
 import os from 'node:os';
 import fs from 'fs';
 import { deflate, inflate } from 'node:zlib';
+
 /**
  * @typedef {{pomodoroLength:Number, shortBreakLength:Number, longBreakLength:Number, longBreakInterval:Number}} settings
  */
@@ -11,13 +12,13 @@ import { deflate, inflate } from 'node:zlib';
 export const configPath = (() => {
     switch (os.platform()) {
 		case 'win32':
-			return `${home}\\AppData\\Roaming\\tasktree.yml`;
+			return `${os.homedir()}\\AppData\\Roaming\\`;
 		case 'darwin':
-			return `${home}/Library/Application Support/tasktree.yml`;
+			return `${os.homedir()}/Library/Application Support/`;
 		case 'linux' || 'freebsd':
-			return `${env.XDG_CONFIG_HOME || env.HOME + '/.config'}/.tasktree.yml`;
+			return `${env.XDG_CONFIG_HOME || env.HOME + '/.config'}/`;
 		default:
-			return `${home}/.tasktree.yml`;
+			return `${os.homedir()}/`;
 	}
 })();
 
@@ -47,20 +48,11 @@ export class Config {
     }
 
     /**
-     * @method fromFile load a config file from a given path
+     * @method save Saves the current config to a file as deflate()d json
      * @param {import('node:fs').PathLike} ConfigFile 
      */
-    fromFile(ConfigFile=`${configPath}/default.config`) {
-        let configText = inflate(fs.readFileSync(ConfigFile), (e, r) => {if (e) throw (e); else return (r);});
-        return new Config(JSON.parse(configText));
-    }
-
-    /**
-     * @method save Saves the current config to a file
-     * @param {import('node:fs').PathLike} ConfigFile 
-     */
-    save(ConfigFile=`${configPath}/default.config`) {
-        fs.writeFileSync(ConfigFile, (deflate(JSON.stringify(this.settings), (e, r) => {if (e) throw (e); else return (r);})));
+    save(ConfigFile=`${configPath}/tasktree.config`) {
+        deflate(JSON.stringify(this.settings), (e, r) => {if (e) throw (e); else fs.writeFileSync(ConfigFile, r);});
     }
 }
 
@@ -137,3 +129,13 @@ export class Task {
         }
     }
 }
+
+class TaskTree {
+    //TODO: this
+}
+
+export default {
+    Task,
+    configPath,
+    Config
+};
