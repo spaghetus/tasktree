@@ -19,6 +19,9 @@
     "xo": "^0.48.0"
   },
   "dependencies": {
+    "chalk": "^5.0.0",
+    "chalk-animation": "^1.6.0",
     "yaml": "^1.10.2"
-  }
+  },
+  "type": "module"
 }
